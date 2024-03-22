@@ -1,4 +1,6 @@
 "use client";
+import { SIGNUP_USER } from "@/gqlOperations/mutations";
+import { useMutation } from "@apollo/client";
 import Link from "next/link";
 import React, { useState } from "react";
 
@@ -19,6 +21,7 @@ const page = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
+  const [signUpUser, { data, loading, error }] = useMutation(SIGNUP_USER);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNewUser((prev) => {
@@ -85,6 +88,11 @@ const page = () => {
     ) {
       return;
     }
+    signUpUser({
+      variables: {
+        newUser,
+      },
+    });
   };
   return (
     <div className="flex justify-center py-4">
@@ -93,6 +101,14 @@ const page = () => {
           onSubmit={handleSubmit}
           class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
         >
+          {error && (
+            <p class="text-red-500 text-xs text-center mb-4">{error.message}</p>
+          )}
+          {data?.user && (
+            <p class="text-green-500 text-xs text-center mb-4">
+              You can now login!
+            </p>
+          )}
           <h2 className="text-lg text-center font-bold mb-4">Sign Up</h2>
           <div class="mb-4">
             <label
@@ -106,6 +122,7 @@ const page = () => {
               id="first_name"
               name="first_name"
               type="text"
+              disabled={loading}
               placeholder="First Name"
               onChange={handleChange}
               value={newUser.first_name}
@@ -126,6 +143,7 @@ const page = () => {
               id="last_name"
               name="last_name"
               type="text"
+              disabled={loading}
               placeholder="Last Name"
               onChange={handleChange}
               value={newUser.last_name}
@@ -146,6 +164,7 @@ const page = () => {
               id="email"
               name="email"
               type="email"
+              disabled={loading}
               placeholder="Email"
               onChange={handleChange}
               value={newUser.email}
@@ -164,6 +183,7 @@ const page = () => {
               id="password"
               name="password"
               type="password"
+              disabled={loading}
               placeholder="Password"
               onChange={handleChange}
               value={newUser.password}
@@ -182,8 +202,9 @@ const page = () => {
             <button
               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="submit"
+              disabled={loading}
             >
-              Sign Up
+              {loading ? "Loading..." : "Sign Up"}
             </button>
           </div>
         </form>

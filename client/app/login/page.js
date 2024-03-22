@@ -1,8 +1,12 @@
 "use client";
+import { LOGIN_USER } from "@/gqlOperations/mutations";
+import { useMutation } from "@apollo/client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const page = () => {
+  const { push } = useRouter();
   const [user, setUser] = useState({
     email: "",
     password: "",
@@ -24,6 +28,7 @@ const page = () => {
       };
     });
   };
+  const [signInUser, { data, loading, error }] = useMutation(LOGIN_USER);
   const handleSubmit = (e) => {
     e.preventDefault();
     setErrors({
@@ -61,7 +66,16 @@ const page = () => {
     ) {
       return;
     }
+    signInUser({
+      variables: {
+        user,
+      },
+    });
   };
+  if (data) {
+    localStorage.setItem("token", data?.user?.token);
+    push("/");
+  }
   return (
     <div className="flex justify-center py-4">
       <div class="w-full max-w-xs">
@@ -69,6 +83,14 @@ const page = () => {
           onSubmit={handleSubmit}
           class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
         >
+          {error && (
+            <p class="text-red-500 text-xs text-center mb-4">{error.message}</p>
+          )}
+          {data?.user && (
+            <p class="text-green-500 text-xs text-center mb-4">
+              You can now login!
+            </p>
+          )}
           <h2 className="text-lg text-center font-bold mb-4">Login</h2>
           <div class="mb-4">
             <label
@@ -82,6 +104,7 @@ const page = () => {
               id="email"
               name="email"
               type="email"
+              disabled={loading}
               placeholder="Email"
               onChange={handleChange}
               value={user.email}
@@ -100,6 +123,7 @@ const page = () => {
               id="password"
               name="password"
               type="password"
+              disabled={loading}
               placeholder="Password"
               onChange={handleChange}
               value={user.password}
@@ -118,8 +142,9 @@ const page = () => {
             <button
               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="submit"
+              disabled={loading}
             >
-              Login
+              {loading ? "Loading..." : "Login"}
             </button>
           </div>
         </form>
