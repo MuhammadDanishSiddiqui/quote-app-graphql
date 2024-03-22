@@ -12,6 +12,7 @@ export const userTypeDefs = gql`
   type Query {
     users: [User]
     getProfile(id: ID!): User
+    myProfile: User
   }
   type Token {
     token: String

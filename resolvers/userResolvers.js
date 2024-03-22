@@ -15,6 +15,21 @@ export const userResolvers = {
       }
       return user;
     },
+    myProfile: async (_, args, { user }) => {
+      try {
+        if (!user?._id) {
+          throw new Error("You must be logged in");
+        }
+        const userExits = await User.findById(user?._id);
+        if (!userExits) {
+          throw new Error("Invalid jwt or jwt has been expired");
+        }
+        return userExits;
+      } catch (error) {
+        console.error("Error in getting my profile:", error);
+        throw error;
+      }
+    },
   },
   User: {
     quotes: async (parent) => await Quote.find({ userId: parent._id }),

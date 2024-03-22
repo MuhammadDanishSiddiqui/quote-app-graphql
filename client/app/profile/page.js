@@ -1,7 +1,20 @@
+"use client";
+import { GET_MY_PROFILE } from "@/gqlOperations/queries";
+import { useQuery } from "@apollo/client";
 import Link from "next/link";
 import React from "react";
 
 const page = () => {
+  const { loading, error, data } = useQuery(GET_MY_PROFILE);
+  if (loading) {
+    return <h1>Loading....</h1>;
+  }
+  if (error) {
+    return <p class="text-red-500 text-xs text-center mb-4">{error.message}</p>;
+  }
+  if (data) {
+    console.log(data);
+  }
   return (
     <div className="container mx-auto flex flex-col py-4">
       <h2 className="text-xl font-bold my-4">User Profile</h2>
@@ -13,28 +26,28 @@ const page = () => {
         <div>
           <div className="flex mb-2">
             <span className="font-bold mr-2">User Name: </span>
-            <span>John Doe</span>
+            <span>
+              {data?.user?.first_name} {data?.user?.last_name}
+            </span>
           </div>
           <div className="flex">
             <span className="font-bold mr-2">Email: </span>
-            <span>JohnDoe@gmail.com</span>
+            <span>{data?.user?.email}</span>
           </div>
         </div>
       </div>
       <div className="flex flex-col py-14">
         <h3 className="font-semibold mb-8">User Qoutes</h3>
-        <div className="border-l-4 border-l-red-500 flex flex-col px-2 mb-4">
-          <p>You onli love one</p>
-          <Link href={""} className="text-blue-500 self-end">
-            ~mukesh
-          </Link>
-        </div>
-        <div className="border-l-4 border-l-red-500 flex flex-col px-2 mb-4">
-          <p>You onli love one</p>
-          <Link href={""} className="text-blue-500 self-end">
-            ~mukesh
-          </Link>
-        </div>
+        {data?.user?.quotes?.map((q) => {
+          return (
+            <div className="border-l-4 border-l-red-500 flex flex-col px-2 mb-4">
+              <p>{q?.quote}</p>
+              <Link href={""} className="text-blue-500 self-end">
+                ~{q?.user?.first_name}
+              </Link>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -12,6 +12,12 @@ function makeClient() {
   const httpLink = new HttpLink({
     uri: "http://localhost:4000",
     fetchOptions: { cache: "no-store" },
+    headers: {
+      authorization:
+        typeof window != "undefined"
+          ? window?.localStorage?.getItem("token") || ""
+          : "",
+    },
   });
 
   return new NextSSRApolloClient({
